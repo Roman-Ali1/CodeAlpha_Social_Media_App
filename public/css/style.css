@@ -1,0 +1,1442 @@
+/* ============================================================
+   NEXUS SOCIAL — STYLESHEET
+   Structure:
+   1. CSS Variables (design tokens)
+   2. Reset & Base
+   3. Auth Screen
+   4. Buttons
+   5. App Layout (sidebar + main)
+   6. Navigation
+   7. Search
+   8. Compose Card
+   9. Post Card
+   10. Profile
+   11. Users List
+   12. Modals
+   13. Comments
+   14. States (loading, empty)
+   15. Toast
+   16. Utilities
+   17. Scrollbar
+   18. Animations
+   19. Responsive
+============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   1. CSS VARIABLES
+   Every color, size, shadow defined once here.
+   Never hardcode a value anywhere else in this file.
+──────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — layered from darkest to lightest */
+  --bg-base: #0a0b0f; /* page background */
+  --bg-surface: #111318; /* cards, inputs */
+  --bg-elevated: #191c24; /* modals, dropdowns */
+  --bg-hover: #1e2230; /* hover states */
+
+  /* Borders */
+  --border: #242836;
+  --border-soft: #1a1d2a;
+
+  /* Accent — single brand color */
+  --accent: #00d4ff;
+  --accent-dim: #00b4d8;
+  --accent-glow: rgba(0, 212, 255, 0.12);
+
+  /* Text hierarchy */
+  --text-primary: #e8eaf0;
+  --text-secondary: #8892a4;
+  --text-muted: #4a5268;
+
+  /* Semantic colors */
+  --danger: #ff4d6a;
+  --success: #22c55e;
+  --like: #ff6b8a;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 0 20px rgba(0, 212, 255, 0.15);
+
+  /* Typography */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Layout */
+  --sidebar-w: 260px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   2. RESET & BASE
+──────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* All SVG icons — stroke-based, no fill by default */
+svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* Screens: hidden by default, flex when .active */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ────────────────────────────────────────────────────────────
+   3. AUTH SCREEN
+──────────────────────────────────────────────────────────── */
+#auth-screen {
+  align-items: center;
+  justify-content: center;
+  /* Subtle cyan glow from top */
+  background-image: radial-gradient(
+    ellipse 60% 40% at 50% -10%,
+    rgba(0, 212, 255, 0.07) 0%,
+    transparent 70%
+  );
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+/* Brand block */
+.auth-brand {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.brand-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--accent), #0066ff);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 auto 16px;
+  box-shadow: var(--shadow-accent);
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.brand-tagline {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Tab switcher */
+.auth-tabs {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Auth forms */
+.auth-form {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form.active {
+  display: flex;
+}
+
+/* Shared field group used in auth + modals */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.field-group input,
+.field-group textarea {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  width: 100%;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  resize: none;
+}
+
+.field-group input:focus,
+.field-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.field-group input::placeholder,
+.field-group textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Inline form error */
+.form-error {
+  background: rgba(255, 77, 106, 0.1);
+  border: 1px solid rgba(255, 77, 106, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ────────────────────────────────────────────────────────────
+   4. BUTTONS
+──────────────────────────────────────────────────────────── */
+
+/* Primary — cyan fill, dark text */
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Modifier: full width */
+.btn-full {
+  width: 100%;
+}
+
+/* Modifier: small size */
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* Ghost — transparent, text only */
+.btn-ghost {
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+/* Outline — border only */
+.btn-outline {
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Follow button — pill shape */
+.btn-follow {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 22px;
+  border-radius: 20px;
+  transition: opacity 0.2s;
+}
+
+.btn-follow:hover {
+  opacity: 0.85;
+}
+
+/* Following state — outlined, turns red on hover */
+.btn-follow.following {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.btn-follow.following:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ────────────────────────────────────────────────────────────
+   5. APP LAYOUT
+──────────────────────────────────────────────────────────── */
+#app-screen {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* ────────────────────────────────────────────────────────────
+   6. SIDEBAR
+──────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--border-soft);
+  background: var(--bg-base);
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 6px;
+}
+
+/* Smaller version of brand icon for sidebar */
+.brand-icon.sm {
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  border-radius: 8px;
+  margin: 0;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.sidebar .brand-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* Nav links */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: rgba(0, 212, 255, 0.15);
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Search inside sidebar */
+.sidebar-search {
+  position: relative;
+  margin-top: 8px;
+}
+
+.sidebar-search input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.sidebar-search input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Search dropdown */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Search empty state */
+.search-empty {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.search-empty strong {
+  color: var(--text-secondary);
+}
+
+/* Richer search result item */
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: var(--bg-hover);
+}
+
+.sr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sr-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sr-bio {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+/* Logged-in user info at bottom of sidebar */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  margin-top: auto;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar-user-info .fw-600 {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ────────────────────────────────────────────────────────────
+   AVATARS
+   Three sizes: sm (34px), default (44px), lg (72px)
+──────────────────────────────────────────────────────────── */
+.avatar-sm,
+.avatar,
+.avatar-lg {
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff, #0066ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-sm {
+  width: 34px;
+  height: 34px;
+  font-size: 13px;
+}
+.avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+.avatar-lg {
+  width: 72px;
+  height: 72px;
+  font-size: 26px;
+}
+
+/* Images inside avatars */
+.avatar-sm img,
+.avatar img,
+.avatar-lg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ────────────────────────────────────────────────────────────
+   7. MAIN CONTENT AREA
+──────────────────────────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  max-width: 680px;
+  min-height: 100vh;
+  padding: 0 24px 80px;
+  margin: 0 auto;
+}
+
+/* Views: hidden by default, block when .active */
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+
+.view-header {
+  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 24px;
+}
+
+.view-header h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   8. COMPOSE CARD
+──────────────────────────────────────────────────────────── */
+.compose-card {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.compose-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compose-body textarea {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 15px;
+  resize: none;
+  min-height: 72px;
+  width: 100%;
+  line-height: 1.6;
+}
+
+.compose-body textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.compose-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.char-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.char-count.warn {
+  color: var(--danger);
+}
+
+/* ────────────────────────────────────────────────────────────
+   9. POST CARD
+──────────────────────────────────────────────────────────── */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  transition: border-color 0.2s;
+  animation: fadeIn 0.2s ease;
+}
+
+.post-card:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+}
+
+/* Post header: avatar + name + time + delete btn */
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.post-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.post-user:hover .post-username {
+  color: var(--accent);
+}
+
+.post-username {
+  font-weight: 600;
+  font-size: 14px;
+}
+.post-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Post body text */
+.post-content {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  word-break: break-word;
+  cursor: pointer;
+}
+
+/* Optional image */
+.post-image {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  cursor: pointer;
+  display: block;
+}
+
+/* Action bar: like, comment, delete */
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Liked state — heart fills pink */
+.like-btn.liked {
+  color: var(--like);
+}
+.like-btn.liked svg {
+  fill: var(--like);
+  stroke: var(--like);
+}
+
+/* Delete button — right-aligned, turns red on hover */
+.delete-btn {
+  margin-left: auto;
+}
+.delete-btn:hover {
+  color: var(--danger);
+  background: rgba(255, 77, 106, 0.1);
+}
+
+/* ────────────────────────────────────────────────────────────
+   10. PROFILE
+──────────────────────────────────────────────────────────── */
+.profile-header {
+  padding: 32px 0 24px;
+}
+
+.profile-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-username {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+
+.profile-bio {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  max-width: 380px;
+}
+
+/* Stats row: Posts / Followers / Following */
+.profile-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  cursor: pointer;
+  text-align: center;
+}
+
+.stat:hover .stat-label {
+  color: var(--accent);
+}
+
+.stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Profile tab bar */
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 20px;
+}
+
+.profile-tab {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  position: relative;
+  transition: color 0.2s;
+}
+
+.profile-tab.active {
+  color: var(--accent);
+}
+
+/* Active underline indicator */
+.profile-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* ────────────────────────────────────────────────────────────
+   11. USERS LIST (followers / following tabs)
+──────────────────────────────────────────────────────────── */
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.users-list.hidden {
+  display: none;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  animation: fadeIn 0.2s ease;
+}
+
+.user-card:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+}
+
+.user-card .username {
+  font-weight: 600;
+  font-size: 14px;
+}
+.user-card .bio-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   12. MODALS
+──────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.2s ease;
+}
+
+/* Smaller modal for edit profile */
+.modal-sm {
+  max-width: 400px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background: var(--border);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   13. COMMENTS
+──────────────────────────────────────────────────────────── */
+.comments-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.comments-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Single comment row */
+.comment-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.comment-body {
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  flex: 1;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 3px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-author:hover {
+  color: var(--accent);
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.comment-delete {
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-delete:hover {
+  color: var(--danger);
+}
+
+/* Compose new comment */
+.comment-compose {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-compose input {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.comment-compose input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ────────────────────────────────────────────────────────────
+   14. STATES
+──────────────────────────────────────────────────────────── */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.empty-state strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   15. TOAST
+──────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  z-index: 9999;
+  opacity: 0;
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.hidden {
+  display: none;
+}
+
+/* ────────────────────────────────────────────────────────────
+   16. UTILITIES
+──────────────────────────────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
+.fw-600 {
+  font-weight: 600;
+}
+.text-accent {
+  color: var(--accent);
+}
+
+/* ────────────────────────────────────────────────────────────
+   17. SCROLLBAR
+──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ────────────────────────────────────────────────────────────
+   18. ANIMATIONS
+──────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ── Compose media row ──────────────────────────────────────────── */
+.compose-media {
+  display: none; /* hidden until toggle clicked */
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compose-media.open {
+  display: flex;
+}
+
+.compose-media input {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 13px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.compose-media input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.compose-media input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Preview box inside compose */
+.media-preview {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.media-preview img {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.media-preview video {
+  width: 100%;
+  max-height: 240px;
+  display: block;
+  background: #000;
+}
+
+.media-preview .remove-media {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.media-preview .remove-media:hover {
+  background: var(--danger);
+}
+
+/* Compose footer with icon button */
+.compose-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.btn-icon:hover {
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+.btn-icon.active {
+  color: var(--accent);
+}
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Post media (image or video inside a post card) ─────────────── */
+.post-media {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: var(--bg-base);
+}
+
+.post-media img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.post-media img:hover {
+  opacity: 0.92;
+}
+
+.post-media video {
+  width: 100%;
+  max-height: 400px;
+  display: block;
+  background: #000;
+}
+
+/* Video label badge */
+.media-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 0 8px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   19. RESPONSIVE — Mobile
+   Sidebar collapses to icon-only strip at 768px
+──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w: 64px;
+  }
+
+  .sidebar {
+    padding: 16px 10px;
+    align-items: center;
+  }
+
+  /* Hide text labels, keep icons */
+  .sidebar .brand-name,
+  .nav-item span,
+  .sidebar-search,
+  .sidebar-user-info {
+    display: none;
+  }
+
+  .sidebar-brand {
+    padding-bottom: 16px;
+    justify-content: center;
+  }
+  .nav-item {
+    padding: 12px;
+    justify-content: center;
+  }
+  .sidebar-user {
+    padding: 8px;
+    justify-content: center;
+  }
+
+  .main-content {
+    padding: 0 16px 80px;
+  }
+
+  .profile-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .profile-stats {
+    justify-content: center;
+  }
+  .profile-actions {
+    justify-content: center;
+  }
+}
